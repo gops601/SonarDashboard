@@ -5,6 +5,12 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
+    inputs:
+      student_repo:
+        description: 'Student Repository (e.g. org/repo)'
+        required: false
+        type: string
 
 jobs:
   sonar:
@@ -17,6 +23,8 @@ jobs:
       # ---------------------------
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.student_repo || github.repository }}
 
       # ---------------------------
       # Setup Java (Required)
@@ -64,15 +72,27 @@ jobs:
           ls -l coverage.xml
 
       # ---------------------------
+      # Determine Project Key
+      # ---------------------------
+      - name: Determine Project Key
+        run: |
+          if [ -n "${{ inputs.student_repo }}" ]; then
+            REPO_CLEAN=$(echo "${{ inputs.student_repo }}" | tr '/' '-')
+            echo "PROJECT_KEY=${{ github.repository_owner }}_${REPO_CLEAN}" >> $GITHUB_ENV
+          else
+            echo "PROJECT_KEY=${{ github.repository_owner }}_${{ github.event.repository.name }}" >> $GITHUB_ENV
+          fi
+
+      # ---------------------------
       # SonarQube Scan
       # ---------------------------
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-          SONAR_HOST_URL: http://44.201.203.105:9000
+          SONAR_HOST_URL: http://187.127.142.34:9000/
         with:
           args: >
-            -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
+            -Dsonar.projectKey=${{ env.PROJECT_KEY }}
             -Dsonar.sources=.
-            -Dsonar.login=squ_4f7ac18302a201ff8063adbbe59d1c2f8bdb4307
+            -Dsonar.login=squ_e1ef3d2c794145aeccbf80b96433e4f8957aba08
             -Dsonar.python.coverage.reportPaths=coverage.xml
