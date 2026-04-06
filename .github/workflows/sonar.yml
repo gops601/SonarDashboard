@@ -78,9 +78,9 @@ jobs:
         run: |
           if [ -n "${{ inputs.student_repo }}" ]; then
             REPO_CLEAN=$(echo "${{ inputs.student_repo }}" | tr '/' '-')
-            echo "PROJECT_KEY=${{ github.repository_owner }}_${REPO_CLEAN}" >> $GITHUB_ENV
+            echo "PROJECT_KEY=${{ github.repository_owner }}_${REPO_CLEAN}_${{ github.actor }}_${{ github.repository_id }}" >> $GITHUB_ENV
           else
-            echo "PROJECT_KEY=${{ github.repository_owner }}_${{ github.event.repository.name }}" >> $GITHUB_ENV
+            echo "PROJECT_KEY=${{ github.repository_owner }}_${{ github.event.repository.name }}_${{ github.actor }}_${{ github.repository_id }}" >> $GITHUB_ENV
           fi
 
       # ---------------------------
@@ -93,6 +93,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=${{ env.PROJECT_KEY }}
+            -Dsonar.projectName=${{ github.event.repository.name }}-${{ github.actor }}
             -Dsonar.sources=.
             -Dsonar.login=squ_e1ef3d2c794145aeccbf80b96433e4f8957aba08
             -Dsonar.python.coverage.reportPaths=coverage.xml
