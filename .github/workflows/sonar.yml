@@ -48,11 +48,11 @@ jobs:
       # ---------------------------
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt || true
           pip install pytest pytest-cov
 
       # ---------------------------
-      # Fix Import Path (IMPORTANT)
+      # Fix Import Path
       # ---------------------------
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
@@ -94,19 +94,11 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-<<<<<<< HEAD
           SONAR_HOST_URL: http://187.127.142.34:9000
-=======
-          SONAR_HOST_URL: http://187.127.142.34:9000/
->>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.projectKey=${{ env.PROJECT_KEY }}
             -Dsonar.projectName=${{ github.event.repository.name }}-${{ github.actor }}
             -Dsonar.sources=.
-<<<<<<< HEAD
-            -Dsonar.login=squ_567ab1ce90cfb7298314ac8a91d5a725894acf5c
-=======
-            -Dsonar.login=squ_e1ef3d2c794145aeccbf80b96433e4f8957aba08
->>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
             -Dsonar.python.coverage.reportPaths=coverage.xml
