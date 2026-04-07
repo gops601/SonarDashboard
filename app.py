@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import requests
 import mysql.connector
 
 app = Flask(__name__)
 
-SONAR_URL = "http://3.80.138.17:9000"
-TOKEN = "squ_4f7ac18302a201ff8063adbbe59d1c2f8bdb4307"
+SONAR_URL = "http://187.127.142.34:9000"
+TOKEN = "squ_f3e8f13c007c76c4af99412aa8fcb4b027e47c10"
 
 DB = {
     "host": "localhost",
@@ -147,51 +147,56 @@ def save_data(project_key, metrics, quality, ratings, issues):
 
 # -------- ROUTES -------- #
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def dashboard():
-    projects = fetch_projects()
-    selected_project = request.form.get("project")
+    projects_raw = fetch_projects()
+    
+    grouped_projects = {}
+    for p in projects_raw:
+        original_name = p.get('name', 'Unknown')
+        parts = original_name.split('-')
+        
+        if len(parts) >= 2:
+            userid = parts[-1].strip()
+            proj_name = "-".join(parts[:-1]).strip()
+        else:
+            userid = "Other"
+            proj_name = original_name.strip()
+            
+        if userid not in grouped_projects:
+            grouped_projects[userid] = []
+            
+        grouped_projects[userid].append({
+            'key': p.get('key', ''),
+            'name': proj_name,
+            'original_name': original_name,
+            'original_key': p.get('key', '')
+        })
 
-    metrics = quality = ratings = issues = None
+    return render_template("dashboard.html", grouped_projects=grouped_projects)
 
-    if selected_project:
-        conn = db_conn()
-        cur = conn.cursor(dictionary=True)
-
-        cur.execute("SELECT * FROM metrics WHERE project_key=%s ORDER BY id DESC LIMIT 1", (selected_project,))
-        metrics = cur.fetchone()
-
-        cur.execute("SELECT * FROM quality_gate WHERE project_key=%s ORDER BY id DESC LIMIT 1", (selected_project,))
-        quality = cur.fetchone()
-
-        cur.execute("SELECT * FROM ratings WHERE project_key=%s ORDER BY id DESC LIMIT 1", (selected_project,))
-        ratings = cur.fetchone()
-
-        cur.execute("SELECT * FROM issues WHERE project_key=%s ORDER BY id DESC LIMIT 10", (selected_project,))
-        issues = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
-    return render_template("dashboard.html",
-                           projects=projects,
-                           selected_project=selected_project,
-                           metrics=metrics,
-                           quality=quality,
-                           ratings=ratings,
-                           issues=issues)
-
-
-@app.route("/fetch/<project_key>")
-def fetch_store(project_key):
+@app.route("/api/report/<project_key>", methods=["GET"])
+def api_report(project_key):
+    # Fetch latest data from SonarQube directly
     metrics = fetch_metrics(project_key)
     quality = fetch_quality(project_key)
     ratings = fetch_ratings(project_key)
     issues = fetch_issues(project_key)
 
-    save_data(project_key, metrics, quality, ratings, issues)
+    # Save to database in the background (or rather, synchronously before returning)
+    try:
+        save_data(project_key, metrics, quality, ratings, issues)
+    except Exception as e:
+        print(f"Failed to save data to DB: {e}")
 
-    return redirect(url_for('dashboard'))
+    # Return as JSON to the frontend
+    return jsonify({
+        "metrics": metrics,
+        "quality": {"status": quality},
+        "ratings": ratings,
+        "issues": issues,
+        "project_key": project_key
+    })
 
 
 if __name__ == "__main__":
