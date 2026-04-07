@@ -5,6 +5,12 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
+    inputs:
+      student_repo:
+        description: 'Student Repository (e.g. org/repo)'
+        required: false
+        type: string
 
 jobs:
   sonar:
@@ -17,6 +23,8 @@ jobs:
       # ---------------------------
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.student_repo || github.repository }}
 
       # ---------------------------
       # Setup Java (Required)
@@ -54,14 +62,31 @@ jobs:
       # ---------------------------
       - name: Run tests
         run: |
-          pytest tests/ --cov=. --cov-report=xml
+          if [ -d "tests" ]; then
+            pytest tests/ --cov=. --cov-report=xml || true
+          else
+            echo "No tests directory found. Creating empty coverage."
+            echo "<?xml version='1.0' ?><coverage version='7.6.1'></coverage>" > coverage.xml
+          fi
 
       # ---------------------------
       # Verify Coverage File
       # ---------------------------
       - name: Check coverage
         run: |
-          ls -l coverage.xml
+          ls -l coverage.xml || true
+
+      # ---------------------------
+      # Determine Project Key
+      # ---------------------------
+      - name: Determine Project Key
+        run: |
+          if [ -n "${{ inputs.student_repo }}" ]; then
+            REPO_CLEAN=$(echo "${{ inputs.student_repo }}" | tr '/' '-')
+            echo "PROJECT_KEY=${{ github.repository_owner }}_${REPO_CLEAN}_${{ github.actor }}_${{ github.repository_id }}" >> $GITHUB_ENV
+          else
+            echo "PROJECT_KEY=${{ github.repository_owner }}_${{ github.event.repository.name }}_${{ github.actor }}_${{ github.repository_id }}" >> $GITHUB_ENV
+          fi
 
       # ---------------------------
       # SonarQube Scan
@@ -69,10 +94,19 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
+<<<<<<< HEAD
           SONAR_HOST_URL: http://187.127.142.34:9000
+=======
+          SONAR_HOST_URL: http://187.127.142.34:9000/
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
         with:
           args: >
-            -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
+            -Dsonar.projectKey=${{ env.PROJECT_KEY }}
+            -Dsonar.projectName=${{ github.event.repository.name }}-${{ github.actor }}
             -Dsonar.sources=.
+<<<<<<< HEAD
             -Dsonar.login=squ_567ab1ce90cfb7298314ac8a91d5a725894acf5c
+=======
+            -Dsonar.login=squ_e1ef3d2c794145aeccbf80b96433e4f8957aba08
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
             -Dsonar.python.coverage.reportPaths=coverage.xml

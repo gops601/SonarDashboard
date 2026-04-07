@@ -458,6 +458,7 @@
             </div>
         </div>
 
+<<<<<<< HEAD
         <div class="project-list" id="projectList">
             {% for userid, projs in grouped_projects.items() %}
             <div class="user-group" data-userid="{{ userid|lower }}">
@@ -550,11 +551,117 @@
                             <div class="metric-label">Code Smells</div>
                         </div>
                         <div class="rating-badge" id="valMaintainability">--</div>
+=======
+        <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.3);">
+            <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; color: var(--text-secondary);">TRIGGER NEW SCAN</div>
+            <input type="text" id="inputRepo" placeholder="Student Repo (e.g. org/repo)" style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; outline: none; margin-bottom: 8px;" />
+            <input type="password" id="inputPat" placeholder="Teacher PAT" style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; outline: none; margin-bottom: 12px;" />
+            <button onclick="triggerScan()" id="btnTriggerScan" style="width: 100%; height: 36px; background: var(--accent-primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                Run Workflow
+            </button>
+        </div>
+
+        <div class="project-list" id="projectList">
+            {% for userid, projs in grouped_projects.items() %}
+            <div class="user-group" data-userid="{{ userid|lower }}">
+                <div class="user-header" onclick="toggleUserGroup(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                    <span class="userid-text">{{ userid }}</span>
+                    <span class="badge">{{ projs|length }}</span>
+                </div>
+                <div class="user-projects">
+                    {% for p in projs %}
+                    <div class="project-item" data-key="{{ p.key }}" data-name="{{ p.original_name }}"
+                        data-search="{{ p.name|lower }}" onclick="selectProject(this)">
+                        <div class="project-name">{{ p.name }}</div>
+                        <div class="project-key">{{ p.key }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            {% if not grouped_projects %}
+            <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                No projects found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title" id="topbarTitle">Select a Project</div>
+        </div>
+
+        <div class="dashboard-container">
+
+            <div class="empty-state" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <path d="M2 15h10"></path>
+                    <path d="M9 18l3-3-3-3"></path>
+                </svg>
+                <h2>Select a project from the sidebar to view insights</h2>
+            </div>
+
+            <div class="loading-state" id="loadingState" style="display: none;">
+                <div class="spinner"></div>
+                <h2>Fetching latest metrics...</h2>
+            </div>
+
+            <div class="dashboard-grid" id="dashboardGrid">
+
+                <div class="card qg-card">
+                    <div>
+                        <div class="card-header" style="margin-bottom: 8px;">Quality Gate Status</div>
+                        <div class="qg-status" id="valQualityGate">--</div>
+                    </div>
+                    <div>
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" style="opacity: 0.2;">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
+<<<<<<< HEAD
+=======
+                        <div class="card-icon"><span style="color:var(--accent-danger)">🐛</span></div>
+                        Issues Overview
+                    </div>
+                    <div class="metrics-row">
+                        <div>
+                            <div class="metric-value" id="valBugs">0</div>
+                            <div class="metric-label">Bugs</div>
+                        </div>
+                        <div class="rating-badge" id="valReliability">--</div>
+                    </div>
+                    <div class="metrics-row">
+                        <div>
+                            <div class="metric-value" id="valVulnerabilities">0</div>
+                            <div class="metric-label">Vulnerabilities</div>
+                        </div>
+                        <div class="rating-badge" id="valSecurity">--</div>
+                    </div>
+                    <div class="metrics-row">
+                        <div>
+                            <div class="metric-value" id="valCodeSmells">0</div>
+                            <div class="metric-label">Code Smells</div>
+                        </div>
+                        <div class="rating-badge" id="valMaintainability">--</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
                         <div class="card-icon"><span style="color:var(--accent-primary)">📊</span></div>
                         Code Analysis
                     </div>
@@ -569,11 +676,65 @@
                     </div>
                 </div>
 
+<<<<<<< HEAD
+=======
+                <!-- Detailed Report Card -->
+                <div class="card" style="grid-column: 1 / -1; display: none;" id="issuesCard">
+                    <div class="card-header">
+                        <div class="card-icon"><span style="color:var(--accent-warning)">⚠️</span></div>
+                        Detailed Issue Report
+                    </div>
+                    <div style="margin-top: 16px" id="issuesList">
+                        <!-- Issues list will populate here -->
+                    </div>
+                </div>
+
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
             </div>
         </div>
     </div>
 
     <script>
+<<<<<<< HEAD
+=======
+        function triggerScan() {
+            const repo = document.getElementById('inputRepo').value.trim();
+            const pat = document.getElementById('inputPat').value.trim();
+            if (!repo || !pat) {
+                alert("Please enter both the Repository URL and your GitHub PAT.");
+                return;
+            }
+            
+            const btn = document.getElementById('btnTriggerScan');
+            btn.innerText = "Triggering...";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+
+            fetch('/api/trigger_scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ repo_url: repo, pat: pat })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);
+                } else {
+                    alert("Success! " + data.message + "\\n\\nThe workflow will run in the background. Refresh the dashboard in a few minutes to see the new data.");
+                    document.getElementById('inputRepo').value = '';
+                }
+            })
+            .catch(err => {
+                alert("Failed to send request.");
+            })
+            .finally(() => {
+                btn.innerText = "Run Workflow";
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            });
+        }
+
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
         function toggleUserGroup(element) {
             const group = element.parentElement;
             group.classList.toggle('expanded');
@@ -665,6 +826,40 @@
             setRating('valReliability', data.ratings.reliability_rating);
             setRating('valSecurity', data.ratings.security_rating);
             setRating('valMaintainability', data.ratings.sqale_rating);
+<<<<<<< HEAD
+=======
+
+            // Populate Issues
+            const issuesList = document.getElementById('issuesList');
+            const issuesCard = document.getElementById('issuesCard');
+            issuesList.innerHTML = '';
+            
+            if (data.issues && data.issues.length > 0) {
+                data.issues.forEach(issue => {
+                    const el = document.createElement('div');
+                    el.style.padding = '12px';
+                    el.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                    el.style.marginBottom = '8px';
+                    
+                    // Simple severity color map
+                    let sevColor = 'var(--accent-warning)';
+                    if (issue.severity === 'BLOCKER' || issue.severity === 'CRITICAL') sevColor = 'var(--accent-danger)';
+                    else if (issue.severity === 'MINOR' || issue.severity === 'INFO') sevColor = 'var(--text-secondary)';
+
+                    el.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <strong style="color: ${sevColor}; font-size: 0.85rem; padding: 2px 6px; background: rgba(255,255,255,0.05); border-radius: 4px;">${issue.severity}</strong>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary)">${issue.component} ${issue.line ? '(Line ' + issue.line + ')' : ''}</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 8px;">${issue.message}</div>
+                    `;
+                    issuesList.appendChild(el);
+                });
+                issuesCard.style.display = 'block';
+            } else {
+                issuesCard.style.display = 'none';
+            }
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
         }
 
         function setRating(elementId, ratingValue) {

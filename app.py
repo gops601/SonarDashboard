@@ -197,7 +197,55 @@ def api_report(project_key):
         "issues": issues,
         "project_key": project_key
     })
+<<<<<<< HEAD
+=======
+
+
+# -------- TRIGGER WORKFLOW ROUTE -------- #
+@app.route("/api/trigger_scan", methods=["POST"])
+def api_trigger_scan():
+    data = request.json
+    repo_url = data.get("repo_url")
+    pat = data.get("pat")
+    
+    if not repo_url or not pat:
+        return jsonify({"error": "Missing repository URL or PAT"}), 400
+        
+    owner = "gops601"
+    repo = "SonarDashboard"
+    workflow_id = "sonar.yml"
+    url = f"https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"
+    
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f"token {pat}"
+    }
+    payload = {
+        "ref": "main",
+        "inputs": {
+            "student_repo": repo_url
+        }
+    }
+    
+    try:
+        r = requests.post(url, headers=headers, json=payload)
+        if r.status_code == 204:
+            return jsonify({"message": f"Successfully triggered GitHub Workflow for {repo_url}!"}), 200
+        else:
+            return jsonify({"error": f"Failed to trigger workflow: {r.status_code} - {r.text}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Internal Error: {str(e)}"}), 500
+>>>>>>> 3b5fa3302bcc4560f02497e840c84b26b23a7268
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import threading
+    import webbrowser
+    import time
+
+    def open_browser():
+        time.sleep(1.5)
+        webbrowser.open("http://127.0.0.1:5000/")
+        
+    threading.Thread(target=open_browser, daemon=True).start()
+    app.run(debug=True, use_reloader=False)
